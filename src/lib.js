@@ -2,41 +2,56 @@ import xlsx from 'xlsx'
 import path from 'path'
 import fs from 'fs'
 
-export function parse ({file, filedMap, defaults = {}}) {
-  checkFile(file)
-  let workbook = xlsx.readFile(file)
+const debug = require('debug')('sweet:xlsx')
 
-  let data = workbook.sheetnames.reduce((data, sheetName) => {
-    let sheet = workbook.Sheets[sheetName]
-    data = data.concat(sheet)
+export function parse ({file, fieldMap, defaults = {}} = {}) {
+  checkFile(file)
+
+  if (!fieldMap || typeof fieldMap !== 'object') {
+    throw Error('need fieldMap, and type of fieldMap must be object')
+  }
+
+  const workbook = xlsx.readFile(file)
+  const data = workbook.SheetNames.reduce((data, sheetName) => {
+    const sheet = workbook.Sheets[sheetName]
+    data = data.concat(xlsx.utils.sheet_to_json(sheet))
+    return data
   }, [])
+  debug('data of workbook:', data)
   return format(data, fieldMap, defaults)
 }
 
 function checkFile (file) {
-  let ext = path.extname(file)
-  if (['xlsx', 'xls'].indexOf(ext) === -1) {
-    throw Error(`${ext} is not supported`)
+  // file must can be read
+  fs.accessSync(file, fs.constants.R_OK)
+  debug(`${file} is accessieble`)
+  const ext = path.extname(file)
+  if (['.xlsx', '.xls'].indexOf(ext) === -1) {
+    throw Error(`*.${ext} is not supported`)
   }
-  let stat = fs.lstat(file)
+  const stat = fs.lstatSync(file)
+  debug(`stat of ${file}:`, stat)
   if (!stat.isFile()) {
     throw Error(`${file} is not a file`)
   }
 }
 
-function format(rawData, filedMap, defaults) {
+function format(rawData, fieldMap, defaults) {
   let ret = {error: false, data: [], reasons: []}
 
-  rawData.forEach((t, index) => formatOne(t, fieldMap, index))
+  rawData.forEach((t, index) => formatOne(t, index))
 
   return ret
 
-  function formatOne (raw, fieldMap, index) {
+  function formatOne (raw, index) {
+    debug('format line', raw)
     let one = Object.keys(fieldMap).reduce((one, key) => {
-      let fieldFormat = filedMap[clearKey(key)]
-      let {field, required, defaultValue, isIn, map, isInt} = parseFiledFormat(fieldFormat)
+      let fieldFormat = fieldMap[clearKey(key)]
+      debug('key', key, 'field format', fieldFormat)
+
+      let {field, required, defaultValue, isIn, map, isInt} = parseFieldFormat(fieldFormat)
       one[field] = raw && raw[key] && raw[key].replace(/\t/g, '')
-      if (!one[filed]) {
+      if (!one[field]) {
         if (defaultValue) {
           one[field] = defaultValue
         } else if (required) {
@@ -66,8 +81,8 @@ function format(rawData, filedMap, defaults) {
       }
 
       return one
-    }, Object.assign({}， defaults))
-    ret.push(one)
+    }, Object.assign({}, defaults))
+    ret.data.push(one)
   }
 }
 
@@ -75,7 +90,7 @@ function clearKey (key) {
   return key.toLowerCase().trim().replace(/\t/g, '')
 }
 
-function parseFiledFormat(format) {
+function parseFieldFormat(format) {
   if (format.indexOf('!') === -1) {
     return {field: format}
   }

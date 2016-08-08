@@ -5,7 +5,12 @@
   "main": "dist/lib.js",
   "scripts": {
     "test": "ava | tap-spec",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/sunfuze/sweet-config.git"
   },
   "keywords": [
     "xlsx",
@@ -33,6 +38,7 @@
     "timeout": "5s"
   },
   "dependencies": {
+    "debug": "^2.2.0",
     "xlsx": "^0.8.0"
   }
 }
