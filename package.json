@@ -1,11 +1,11 @@
 {
   "name": "sweet-xlsx",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Using to parse xlsx and format data to json, write data to xlsx",
   "main": "dist/lib.js",
   "scripts": {
     "test": "ava | tap-spec",
-    "build": "rollup -c",
+    "build": "NODE_ENV=production rollup -c",
     "prepublish": "npm run build"
   },
   "repository": {
@@ -24,6 +24,7 @@
     "babel-preset-es2015-rollup": "^1.1.1",
     "babel-register": "^6.9.0",
     "babelrc-rollup": "^1.1.0",
+    "rollup": "^0.34.7",
     "rollup-plugin-babel": "^2.5.1",
     "tap-spec": "^4.1.1"
   },

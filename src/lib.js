@@ -37,7 +37,8 @@ function checkFile (file) {
 }
 
 function format(rawData, fieldMap, defaults) {
-  let ret = {error: false, data: [], reasons: []}
+
+  let ret = {errors: [], data: []}
 
   rawData.forEach((t, index) => formatOne(t, index))
 
@@ -55,8 +56,11 @@ function format(rawData, fieldMap, defaults) {
         if (defaultValue) {
           one[field] = defaultValue
         } else if (required) {
-          ret.error = true
-          ret.reasons.push(`${key} is required, index: ${index}`)
+          ret.errors.push({
+            field: key,
+            method: 'required',
+            index: index,
+          })
         }
       }
 
@@ -67,8 +71,11 @@ function format(rawData, fieldMap, defaults) {
         }
 
         if (i === len) {
-          ret.error = true
-          ret.reasons.push(`value of ${key} is not in (${isIn.join(',')})`)
+          ret.errors.push({
+            field: key,
+            method: 'isIn',
+            index: index,
+          })
         }
       }
 
