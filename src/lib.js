@@ -1,3 +1,4 @@
+'use strict'
 import xlsx from 'xlsx'
 import path from 'path'
 import fs from 'fs'
@@ -45,6 +46,7 @@ function format(rawData, fieldMap, defaults) {
   return ret
 
   function formatOne (raw, index) {
+    raw = cleanData(raw)
     debug('format line', raw)
     let one = Object.keys(fieldMap).reduce((one, key) => {
       let fieldFormat = fieldMap[clearKey(key)]
@@ -94,7 +96,7 @@ function format(rawData, fieldMap, defaults) {
 }
 
 function clearKey (key) {
-  return key.toLowerCase().trim().replace(/\t/g, '')
+  return key.toLowerCase().trim().replace(/[\t\s]/g, '')
 }
 
 function parseFieldFormat(format) {
@@ -149,6 +151,13 @@ function parseFieldFormat(format) {
   function isInt (helper) {
     return contain(helper, 'isInt')
   }
+}
+
+function cleanData (data) {
+  return Object.keys(data).reduce((result, key) => {
+    result[clearKey(key)] = data[key]
+    return result
+  }, {})
 }
 
 function contain (str, sub) {

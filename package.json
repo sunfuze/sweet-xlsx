@@ -1,6 +1,6 @@
 {
   "name": "sweet-xlsx",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Using to parse xlsx and format data to json, write data to xlsx",
   "main": "dist/lib.js",
   "scripts": {
