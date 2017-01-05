@@ -6,7 +6,8 @@
   "scripts": {
     "test": "ava | tap-spec",
     "build": "NODE_ENV=production rollup -c",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "pub": "npm publish --registry  https://registry.npmjs.org"
   },
   "repository": {
     "type": "git",
